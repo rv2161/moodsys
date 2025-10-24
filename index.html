@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results & Analysis</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <title>Emoji Mood Music Generation</title>
     <style>
         * {
             margin: 0;
@@ -16,520 +15,366 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
         
         .container {
-            max-width: 1600px;
-            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1400px;
+            width: 100%;
         }
         
         h1 {
             text-align: center;
-            color: white;
+            color: #333;
             margin-bottom: 40px;
             font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease;
-        }
-        
-        .chart-container:hover {
-            transform: translateY(-5px);
-        }
-        
-        .chart-title {
-            font-size: 1.4em;
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
-        }
-        
-        .chart-wrapper {
-            position: relative;
-            height: 350px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: bold;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 5px;
         }
         
-        .stat-label {
-            color: #666;
-            font-size: 1em;
+        .visualization {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
         }
         
-        .full-width {
-            grid-column: 1 / -1;
+        .panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
         
-        .legend-custom {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+        .panel:hover {
+            transform: translateY(-5px);
         }
         
-        .legend-item {
+        .panel h2 {
+            text-align: center;
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .emoji-display {
+            width: 100%;
+            height: 300px;
+            background: white;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            font-size: 150px;
+            border: 3px solid #e0e0e0;
+            position: relative;
+            overflow: hidden;
         }
         
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
+        .emoji-display.animated {
+            animation: pulse 2s infinite;
         }
         
-        .legend-text {
-            font-size: 0.9em;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .mood-bars {
+            width: 100%;
+            height: 300px;
+            background: white;
+            border-radius: 10px;
+            border: 3px solid #e0e0e0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+        }
+        
+        .mood-bar {
+            margin: 3px 0;
+        }
+        
+        .mood-label {
+            font-size: 0.85em;
             color: #555;
+            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .bar-container {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .music-output {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            border: 3px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .music-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .music-details {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .music-property {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .property-label {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+        
+        .property-value {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .emoji-btn {
+            font-size: 60px;
+            padding: 15px 25px;
+            border: none;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        
+        .emoji-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎵 Emoji Music Generation System - Results & Analysis 📊</h1>
+        <h1>🎵 Emoji-Based Music Generation System 🎵</h1>
         
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">🎯</div>
-                <div class="stat-value">94.2%</div>
-                <div class="stat-label">Overall Accuracy</div>
+        <div class="visualization">
+            <div class="panel">
+                <h2>Input Emoji</h2>
+                <div class="emoji-display animated" id="inputEmoji">😊</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">😊</div>
-                <div class="stat-value">50K+</div>
-                <div class="stat-label">Emojis Analyzed</div>
+            
+            <div class="panel">
+                <h2>Mood Analysis</h2>
+                <div class="mood-bars">
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>😊 Happy</span>
+                            <span id="happy-val">85%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="happy-bar" style="width: 85%; background: linear-gradient(90deg, #ffd700, #ffed4e);"></div>
+                        </div>
+                    </div>
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>😢 Sad</span>
+                            <span id="sad-val">10%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="sad-bar" style="width: 10%; background: linear-gradient(90deg, #4a90e2, #7cb3e8);"></div>
+                        </div>
+                    </div>
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>😠 Angry</span>
+                            <span id="angry-val">5%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="angry-bar" style="width: 5%; background: linear-gradient(90deg, #ff4757, #ff6b7a);"></div>
+                        </div>
+                    </div>
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>😌 Calm</span>
+                            <span id="calm-val">70%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="calm-bar" style="width: 70%; background: linear-gradient(90deg, #5f9ea0, #7fc7c9);"></div>
+                        </div>
+                    </div>
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>💕 Romantic</span>
+                            <span id="romantic-val">50%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="romantic-bar" style="width: 50%; background: linear-gradient(90deg, #ff69b4, #ff8dc7);"></div>
+                        </div>
+                    </div>
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>🤩 Excited</span>
+                            <span id="excited-val">40%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="excited-bar" style="width: 40%; background: linear-gradient(90deg, #ff9500, #ffb340);"></div>
+                        </div>
+                    </div>
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>⚡ Energetic</span>
+                            <span id="energetic-val">60%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="energetic-bar" style="width: 60%; background: linear-gradient(90deg, #ff6348, #ff8562);"></div>
+                        </div>
+                    </div>
+                    <div class="mood-bar">
+                        <div class="mood-label">
+                            <span>😴 Sleepy</span>
+                            <span id="sleepy-val">20%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="sleepy-bar" style="width: 20%; background: linear-gradient(90deg, #9b59b6, #b57dbd);"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">🎼</div>
-                <div class="stat-value">12K+</div>
-                <div class="stat-label">Songs Generated</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⭐</div>
-                <div class="stat-value">4.7/5</div>
-                <div class="stat-label">User Rating</div>
+            
+            <div class="panel">
+                <h2>Generated Music</h2>
+                <div class="music-output">
+                    <div class="music-icon">🎶</div>
+                    <div class="music-details">
+                        <div class="music-property">
+                            <div class="property-label">Tempo</div>
+                            <div class="property-value" id="tempo">120 BPM</div>
+                        </div>
+                        <div class="music-property">
+                            <div class="property-label">Key</div>
+                            <div class="property-value" id="key">C Major</div>
+                        </div>
+                        <div class="music-property">
+                            <div class="property-label">Style</div>
+                            <div class="property-value" id="style">Upbeat Pop</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="grid">
-            <div class="chart-container">
-                <div class="chart-title">Mood Classification Accuracy</div>
-                <div class="chart-wrapper">
-                    <canvas id="accuracyChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">Mood Distribution in Dataset</div>
-                <div class="chart-wrapper">
-                    <canvas id="distributionChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">Model Performance Metrics</div>
-                <div class="chart-wrapper">
-                    <canvas id="metricsChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">Music Generation Time (ms)</div>
-                <div class="chart-wrapper">
-                    <canvas id="timeChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-container full-width">
-                <div class="chart-title">Training & Validation Loss Over Epochs</div>
-                <div class="chart-wrapper" style="height: 400px;">
-                    <canvas id="lossChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">Confusion Matrix - Mood Classification</div>
-                <div class="chart-wrapper">
-                    <canvas id="confusionChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">User Satisfaction by Mood</div>
-                <div class="chart-wrapper">
-                    <canvas id="satisfactionChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-container full-width">
-                <div class="chart-title">Feature Importance in Mood Prediction</div>
-                <div class="chart-wrapper" style="height: 400px;">
-                    <canvas id="featureChart"></canvas>
-                </div>
-            </div>
+        <div class="controls">
+            <button class="emoji-btn" onclick="analyzeEmoji('😊', {happy: 85, sad: 10, angry: 5, calm: 70, romantic: 50, excited: 40, energetic: 60, sleepy: 20}, {tempo: '120 BPM', key: 'C Major', style: 'Upbeat Pop'})">😊</button>
+            <button class="emoji-btn" onclick="analyzeEmoji('😢', {happy: 15, sad: 80, angry: 10, calm: 50, romantic: 40, excited: 10, energetic: 20, sleepy: 45}, {tempo: '70 BPM', key: 'D Minor', style: 'Melancholic Ballad'})">😢</button>
+            <button class="emoji-btn" onclick="analyzeEmoji('😠', {happy: 10, sad: 20, angry: 85, calm: 15, romantic: 5, excited: 30, energetic: 90, sleepy: 10}, {tempo: '140 BPM', key: 'E Minor', style: 'Aggressive Rock'})">😠</button>
+            <button class="emoji-btn" onclick="analyzeEmoji('😴', {happy: 30, sad: 25, angry: 5, calm: 90, romantic: 30, excited: 5, energetic: 10, sleepy: 95}, {tempo: '60 BPM', key: 'A Major', style: 'Ambient Chill'})">😴</button>
+            <button class="emoji-btn" onclick="analyzeEmoji('🥳', {happy: 95, sad: 5, angry: 5, calm: 20, romantic: 35, excited: 95, energetic: 95, sleepy: 5}, {tempo: '130 BPM', key: 'G Major', style: 'Dance Party'})">🥳</button>
+            <button class="emoji-btn" onclick="analyzeEmoji('😱', {happy: 20, sad: 40, angry: 30, calm: 10, romantic: 5, excited: 70, energetic: 85, sleepy: 10}, {tempo: '150 BPM', key: 'F Minor', style: 'Intense Thriller'})">😱</button>
+            <button class="emoji-btn" onclick="analyzeEmoji('😍', {happy: 80, sad: 15, angry: 5, calm: 60, romantic: 95, excited: 65, energetic: 50, sleepy: 20}, {tempo: '90 BPM', key: 'E Major', style: 'Romantic Jazz'})">😍</button>
+            <button class="emoji-btn" onclick="analyzeEmoji('🤗', {happy: 75, sad: 10, angry: 5, calm: 70, romantic: 60, excited: 50, energetic: 45, sleepy: 25}, {tempo: '100 BPM', key: 'F Major', style: 'Warm Acoustic'})">🤗</button>
         </div>
     </div>
     
     <script>
-        const moods = ['Happy', 'Sad', 'Angry', 'Calm', 'Romantic', 'Excited', 'Energetic', 'Sleepy'];
-        const moodColors = [
-            '#FFD700', '#4A90E2', '#FF4757', '#5F9EA0',
-            '#FF69B4', '#FF9500', '#FF6348', '#9B59B6'
-        ];
-        
-        // Accuracy Chart
-        new Chart(document.getElementById('accuracyChart'), {
-            type: 'bar',
-            data: {
-                labels: moods,
-                datasets: [{
-                    label: 'Accuracy (%)',
-                    data: [96.5, 92.3, 94.8, 95.1, 91.7, 93.4, 94.2, 96.8],
-                    backgroundColor: moodColors,
-                    borderColor: moodColors.map(c => c + 'CC'),
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => Accuracy: ${context.parsed.y}%
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: (value) => value + '%'
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Distribution Chart
-        new Chart(document.getElementById('distributionChart'), {
-            type: 'doughnut',
-            data: {
-                labels: moods,
-                datasets: [{
-                    data: [18.5, 11.2, 9.8, 14.3, 12.7, 13.5, 10.8, 9.2],
-                    backgroundColor: moodColors,
-                    borderWidth: 3,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => ${context.label}: ${context.parsed}%
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Metrics Chart
-        new Chart(document.getElementById('metricsChart'), {
-            type: 'radar',
-            data: {
-                labels: ['Precision', 'Recall', 'F1-Score', 'Specificity', 'Sensitivity'],
-                datasets: [{
-                    label: 'Model Performance',
-                    data: [94.2, 93.8, 94.0, 96.5, 93.8],
-                    fill: true,
-                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                    borderColor: '#667eea',
-                    pointBackgroundColor: '#667eea',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#667eea',
-                    borderWidth: 3,
-                    pointRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            stepSize: 20,
-                            callback: (value) => value + '%'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-        
-        // Time Chart
-        new Chart(document.getElementById('timeChart'), {
-            type: 'line',
-            data: {
-                labels: moods,
-                datasets: [{
-                    label: 'Generation Time',
-                    data: [245, 298, 267, 223, 312, 289, 256, 201],
-                    borderColor: '#764ba2',
-                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
-                    tension: 0.4,
-                    borderWidth: 3,
-                    fill: true,
-                    pointRadius: 6,
-                    pointBackgroundColor: '#764ba2',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => value + ' ms'
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Loss Chart
-        const epochs = Array.from({length: 50}, (_, i) => i + 1);
-        new Chart(document.getElementById('lossChart'), {
-            type: 'line',
-            data: {
-                labels: epochs,
-                datasets: [{
-                    label: 'Training Loss',
-                    data: epochs.map(e => 2.5 * Math.exp(-e/10) + 0.15 + Math.random() * 0.05),
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 2
-                }, {
-                    label: 'Validation Loss',
-                    data: epochs.map(e => 2.5 * Math.exp(-e/10) + 0.25 + Math.random() * 0.08),
-                    borderColor: '#764ba2',
-                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
-                    tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Loss'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Epoch'
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Confusion Matrix (simplified heatmap)
-        const confusionData = moods.map((mood, i) => {
-            return moods.map((_, j) => {
-                if (i === j) return 90 + Math.random() * 8; // Diagonal (true positives)
-                return Math.random() * 5; // Off-diagonal (confusion)
-            });
-        });
-        
-        new Chart(document.getElementById('confusionChart'), {
-            type: 'bar',
-            data: {
-                labels: moods,
-                datasets: moods.map((mood, i) => ({
-                    label: mood,
-                    data: [confusionData[i][i]],
-                    backgroundColor: moodColors[i],
-                    borderColor: moodColors[i],
-                    borderWidth: 2
-                }))
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    title: {
-                        display: true,
-                        text: 'True Positive Rate per Mood'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: (value) => value + '%'
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Satisfaction Chart
-        new Chart(document.getElementById('satisfactionChart'), {
-            type: 'polarArea',
-            data: {
-                labels: moods,
-                datasets: [{
-                    data: [4.8, 4.5, 4.3, 4.9, 4.6, 4.7, 4.6, 4.8],
-                    backgroundColor: moodColors.map(c => c + '80'),
-                    borderColor: moodColors,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => ${context.label}: ${context.parsed.r}/5.0
-                        }
-                    }
-                },
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 5,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Feature Importance Chart
-        new Chart(document.getElementById('featureChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Emoji Sentiment', 'Color Analysis', 'Context Words', 'Emoji Category', 
-                         'Temporal Features', 'User History', 'Emoji Intensity', 'Combined Features'],
-                datasets: [{
-                    label: 'Importance Score',
-                    data: [0.89, 0.76, 0.68, 0.82, 0.54, 0.61, 0.73, 0.85],
-                    backgroundColor: [
-                        '#667eea', '#764ba2', '#FFD700', '#FF69B4',
-                        '#5F9EA0', '#FF9500', '#FF6348', '#9B59B6'
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: 1.0,
-                        title: {
-                            display: true,
-                            text: 'Importance Score'
-                        }
-                    }
-                }
-            }
-        });
+        function analyzeEmoji(emoji, moods, music) {
+            document.getElementById('inputEmoji').textContent = emoji;
+            
+            document.getElementById('happy-bar').style.width = moods.happy + '%';
+            document.getElementById('happy-val').textContent = moods.happy + '%';
+            
+            document.getElementById('sad-bar').style.width = moods.sad + '%';
+            document.getElementById('sad-val').textContent = moods.sad + '%';
+            
+            document.getElementById('angry-bar').style.width = moods.angry + '%';
+            document.getElementById('angry-val').textContent = moods.angry + '%';
+            
+            document.getElementById('calm-bar').style.width = moods.calm + '%';
+            document.getElementById('calm-val').textContent = moods.calm + '%';
+            
+            document.getElementById('romantic-bar').style.width = moods.romantic + '%';
+            document.getElementById('romantic-val').textContent = moods.romantic + '%';
+            
+            document.getElementById('excited-bar').style.width = moods.excited + '%';
+            document.getElementById('excited-val').textContent = moods.excited + '%';
+            
+            document.getElementById('energetic-bar').style.width = moods.energetic + '%';
+            document.getElementById('energetic-val').textContent = moods.energetic + '%';
+            
+            document.getElementById('sleepy-bar').style.width = moods.sleepy + '%';
+            document.getElementById('sleepy-val').textContent = moods.sleepy + '%';
+            
+            document.getElementById('tempo').textContent = music.tempo;
+            document.getElementById('key').textContent = music.key;
+            document.getElementById('style').textContent = music.style;
+        }
     </script>
 </body>
 </html>
